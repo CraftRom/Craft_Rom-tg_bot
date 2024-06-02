@@ -1,0 +1,21 @@
+language: python
+python:
+  - "3.12"
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - pkill -f bot_start.py || true
+
+script:
+  - nohup python bot_start.py &
+
+env:
+  global:
+    - TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
