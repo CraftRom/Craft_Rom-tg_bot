@@ -1,0 +1,15 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  image: python:3.12
+  before_script:
+    - apt-get update && apt-get install -y wget
+  script:
+    - wget https://raw.githubusercontent.com/actions/checkout/master/install.sh
+    - chmod +x install.sh && ./install.sh -x
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pkill -f bot_start.py || true
+    - python bot_start.py
