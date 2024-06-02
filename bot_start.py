@@ -1,17 +1,13 @@
 import os
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
-
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Вітаю! Це ваш бот, готовий допомогти.')
-
-def main():
-    token = os.getenv('TELEGRAM_TOKEN')
-    updater = Updater(token, use_context=True)
-    dp = updater.dispatcher
-    dp.add_handler(CommandHandler('start', start))
-    updater.start_polling()
-    updater.idle()
+from telegram.ext import Updater, CommandHandler
+from commands import start, rom
 
 if __name__ == '__main__':
-    main()
+    updater = Updater(token=os.getenv('TELEGRAM_TOKEN'), use_context=True)
+    dispatcher = updater.dispatcher
+
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('rom', rom, pass_args=True))
+
+    updater.start_polling()
+    updater.idle()
