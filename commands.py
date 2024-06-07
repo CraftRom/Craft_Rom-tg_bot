@@ -133,7 +133,7 @@ def rom(update: Update, context: CallbackContext) -> None:
                 f"#{device_code} #rom\n"
                 f"<b>{brand} | {name}</b>\n\n"
                 f"▪️<b>Device codename:</b> {device_code}\n"
-                f"{versions_text}\n\n"
+                f"{versions_text}\n\n\n"
                 f"<i>Discuss device's, feature's, or just chat about everything.</i>\n"
                 f'<a href="https://discord.gg/vErZGrSyqD">DISCORD CRAFTROM</a> | '
                 f'<a href="http://t.me/craftrom">CHAT CRAFTROM</a> | '
