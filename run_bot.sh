@@ -37,6 +37,26 @@ start_bot() {
   python3 bot_start.py  2>&1 | tee -a bot.log
 }
 
+# Function to stop the bot
+stop_bot() {
+  echo "Stopping the bot..."
+  # Find the bot process ID
+  bot_pid=$(ps aux | grep 'python3 bot_start.py' | grep -v grep | awk '{print $2}')
+  if [ -n "$bot_pid" ]; then
+    # Kill the bot process
+    kill $bot_pid
+    echo "Bot has been stopped."
+  else
+    echo "Bot is not running."
+  fi
+}
+
+# Check if the script is being run with the 'stop' argument
+if [ "$1" = "stop" ]; then
+  stop_bot
+  exit 0
+fi
+
 # Check if the virtual environment exists
 if [ -d "$VENV_DIR" ]; then
   activate_venv
@@ -55,5 +75,3 @@ find . -name "bot_*.log" -type f -mtime +1 -exec rm {} \;
 
 # Start the bot and redirect output to terminal and append it to bot.log file
 start_bot
-
-
