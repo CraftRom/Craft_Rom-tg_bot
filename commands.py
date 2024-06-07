@@ -101,6 +101,7 @@ def rom(update: Update, context: CallbackContext) -> None:
             device_found = True
             name = device.get('name')
             brand = device.get('brand')
+            maintainers = device.get('maintainers', 'No maintainers')
 
             supported_versions = device.get('supported_versions', [])
             latest_versions = supported_versions[-2:] if len(supported_versions) >= 2 else supported_versions
@@ -110,7 +111,7 @@ def rom(update: Update, context: CallbackContext) -> None:
                 version_code = version.get('version_code')
                 sf_url = f"https://sourceforge.net/projects/craftrom/files/{device_code}/{version_code}/"
 
-                # Перевірка спеціальних version_code
+                # Check for special version codes
                 if version_code == "thrall":
                     version_code = "thrall (Android 13)"
                 elif version_code == "uther":
@@ -135,6 +136,7 @@ def rom(update: Update, context: CallbackContext) -> None:
                 f"#{device_code} #rom\n"
                 f"<b>{brand} | {name}</b>\n\n"
                 f"▪️<b>Device codename:</b> {device_code}\n"
+                f"▪️<b>Maintainer:</b> {maintainers}\n"
                 f"{versions_text}\n\n\n"
                 f"<i>Discuss device's, feature's, or just chat about everything.</i>\n"
                 f'<a href="https://discord.gg/vErZGrSyqD">DISCORD CRAFTROM</a> | '
