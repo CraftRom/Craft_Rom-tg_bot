@@ -1,13 +1,13 @@
 import logging
-import time
 from datetime import datetime
 from typing import List
 
-import psutil
 import requests
 from bs4 import BeautifulSoup
-from telegram import Update
+from telegram import Update, ChatMemberUpdated, ChatMember
 from telegram.ext import CallbackContext
+import psutil
+import time
 
 # Настройка логирования
 logging.basicConfig(
@@ -151,28 +151,45 @@ def rom(update: Update, context: CallbackContext) -> None:
 
 
 def system_info(update: Update, context: CallbackContext) -> None:
-    # Перевірка, чи є користувач адміністратором чату
+    # Check if the user is an admin
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
-    chat_member = context.bot.get_chat_member(chat_id, user_id)
-    if chat_member.status not in ("creator", "administrator"):
+
+    # Check if the user is an admin
+    is_admin = False
+    admins = context.bot.get_chat_administrators(chat_id)
+    for admin in admins:
+        if admin.user.id == user_id:
+            is_admin = True
+            break
+
+    # Check if the user is a hidden admin
+    is_hidden_admin = False
+    for event in context.dispatcher.chat_data.get(chat_id, {}).get('hidden_admin_events', []):
+        if isinstance(event,
+                      ChatMemberUpdated) and event.chat == chat_id and event.new_chat_member.user.id == user_id:
+            is_hidden_admin = event.new_chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.CREATOR]
+            break
+
+    # If the user is neither an admin nor a hidden admin, deny access
+    if not is_admin and not is_hidden_admin:
         update.message.reply_text("You must be an admin to use this command.")
         return
 
-    # Отримання часу аптайму
+    # Get system uptime
     uptime = time.time() - psutil.boot_time()
     uptime_str = time.strftime('%H:%M:%S', time.gmtime(uptime))
 
-    # Отримання навантаження на CPU та RAM
+    # Get CPU and RAM usage
     cpu_percent = psutil.cpu_percent()
     ram_percent = psutil.virtual_memory().percent
 
-    # Отримання інформації про пам'ять
+    # Get memory information
     memory_info = psutil.virtual_memory()
     total_memory = memory_info.total
     available_memory = memory_info.available
 
-    # Підготовка повідомлення
+    # Prepare the message
     message = (
         f"<b>System Uptime:</b> {uptime_str}\n"
         f"<b>CPU Usage:</b> {cpu_percent}%\n"
@@ -181,5 +198,5 @@ def system_info(update: Update, context: CallbackContext) -> None:
         f"<b>Available Memory:</b> {available_memory / (1024 ** 3):.2f} GB"
     )
 
-    # Відправка повідомлення
+    # Send the message
     update.message.reply_text(message, parse_mode='HTML')
