@@ -45,7 +45,13 @@ else
   install_dependencies
 fi
 
-# Start the bot
+# Rename the previous log file to include the date and time of the bot restart
+if [ -f "bot.log" ]; then
+  mv bot.log "bot_$(date +"%Y%m%d_%H%M%S").log"
+fi
+
+# Start the bot and redirect output to terminal and append it to bot.log file
 start_bot 2>&1 | tee -a bot.log
+
 
 
