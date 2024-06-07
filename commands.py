@@ -126,7 +126,7 @@ def rom(update: Update, context: CallbackContext) -> None:
                         version_status = "Stable"
                 else:
                     if deprecated:
-                        version_status = "Deprecated"
+                        version_status = "Unstable (Deprecated)"
                     else:
                         version_status = "Unstable"
 
