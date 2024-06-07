@@ -1,6 +1,6 @@
 import os
 import logging
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from commands import start, rom
 
 # Налаштування логування
