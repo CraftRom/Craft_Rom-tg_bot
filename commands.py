@@ -137,6 +137,7 @@ def rom(update: Update, context: CallbackContext) -> None:
             logging.info(f"Device info sent for device code {device_code}.")
             break
 
-        if not device_found:
-            update.message.reply_text(f"<b>Device code {device_code} not found.</b>", parse_mode='HTML')
-            logging.warning(f"Device code {device_code} not found.")
+    if not device_found:
+        update.message.reply_text(f"<b>Device code {device_code} not found.</b>", parse_mode='HTML')
+        logging.warning(f"Device code {device_code} not found.")
+
