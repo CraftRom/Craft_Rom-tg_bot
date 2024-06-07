@@ -1,10 +1,18 @@
+import logging
 import requests
+import os
 from telegram import Update
 from telegram.ext import CallbackContext
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import List
 
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filename='bot.log'  # Файл, в который будут записываться логи
+)
 
 def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(
@@ -18,7 +26,7 @@ def start(update: Update, context: CallbackContext) -> None:
         'Example: <code>/rom onclite</code>',
         parse_mode='HTML'
     )
-
+    logging.info("User requested /start command.")
 
 class FileInfo:
     def __init__(self, name: str, size: str, last_updated: str, download_link: str):
@@ -26,7 +34,6 @@ class FileInfo:
         self.size = size
         self.last_updated = last_updated
         self.download_link = download_link
-
 
 def extract_files_list(url: str) -> List[FileInfo]:
     try:
@@ -44,9 +51,8 @@ def extract_files_list(url: str) -> List[FileInfo]:
             files.append(FileInfo(name, size, last_updated, download_link))
         return files
     except (requests.RequestException, ValueError, AttributeError) as e:
-        print(f"Error while extracting files list from {url}: {e}")
+        logging.error(f"Error while extracting files list from {url}: {e}")
         return []
-
 
 def rom(update: Update, context: CallbackContext) -> None:
     if len(context.args) != 1:
@@ -69,6 +75,7 @@ def rom(update: Update, context: CallbackContext) -> None:
                 )
         except requests.RequestException as e:
             update.message.reply_text(f"<b>Failed to fetch device codes:</b> {e}", parse_mode='HTML')
+            logging.error(f"Failed to fetch device codes: {e}")
         return
 
     device_code = context.args[0]
@@ -79,6 +86,7 @@ def rom(update: Update, context: CallbackContext) -> None:
         devices_data = response.json()
     except requests.RequestException as e:
         update.message.reply_text(f"<b>Error:</b> {e}", parse_mode='HTML')
+        logging.error(f"Error fetching devices data: {e}")
         return
 
     device_found = False
@@ -107,6 +115,7 @@ def rom(update: Update, context: CallbackContext) -> None:
                         versions_text_list.append(f'<b>Version:</b> {version_code} (Not available)')
                 except requests.RequestException as e:
                     versions_text_list.append(f'<b>Version:</b> {version_code} (Error checking availability)')
+                    logging.error(f"Error checking availability for version {version_code}: {e}")
 
             versions_text = "\n".join(versions_text_list)
 
@@ -121,7 +130,9 @@ def rom(update: Update, context: CallbackContext) -> None:
                 f'<a href="http://t.me/craftrom_news">NEWS</a>'
             )
             update.message.reply_text(message, parse_mode='HTML', disable_web_page_preview=True)
+            logging.info(f"Device info sent for device code {device_code}.")
             break
 
-    if not device_found:
-        update.message.reply_text(f"<b>Device code {device_code} not found.</b>", parse_mode='HTML')
+        if not device_found:
+            update.message.reply_text(f"<b>Device code {device_code} not found.</b>", parse_mode='HTML')
+            logging.warning(f"Device code {device_code} not found.")
