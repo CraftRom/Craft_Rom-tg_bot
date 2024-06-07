@@ -108,6 +108,12 @@ def rom(update: Update, context: CallbackContext) -> None:
                 version_code = version.get('version_code')
                 sf_url = f"https://sourceforge.net/projects/craftrom/files/{device_code}/{version_code}/"
 
+                # Перевірка спеціальних version_code
+                if version_code == "thrall":
+                    version_code = "thrall (Android 13)"
+                elif version_code == "uther":
+                    version_code = "uther (Android 14)"
+
                 try:
                     files_list = extract_files_list(sf_url)
                     if files_list:
