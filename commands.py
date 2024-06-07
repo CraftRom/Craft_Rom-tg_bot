@@ -117,12 +117,26 @@ def rom(update: Update, context: CallbackContext) -> None:
                 elif version_code == "uther":
                     version_code = "uther (Android 14)"
 
+                stable = version.get('stable')
+                deprecated = version.get('deprecated')
+                if stable:
+                    if deprecated:
+                        version_status = "Stable (Deprecated)"
+                    else:
+                        version_status = "Stable"
+                else:
+                    if deprecated:
+                        version_status = "Deprecated"
+                    else:
+                        version_status = "Unstable"
+
                 try:
                     files_list = extract_files_list(sf_url)
                     if files_list:
                         versions_text_list.append(f'▪️<b>Version:</b> {version_code}')
                         versions_text_list.append(
                             f'\n<i>Date:</i> {files_list[0].last_updated}\n'
+                            f'<i>Status:</i> {version_status}'
                             f'<i>Download:</i> <a href="{files_list[0].download_link}">{files_list[0].name}</a> ({files_list[0].size})')
                     else:
                         versions_text_list.append(f'▪️<b>Version:</b> {version_code} (Not available)')
