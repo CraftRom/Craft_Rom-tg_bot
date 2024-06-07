@@ -14,6 +14,7 @@ logging.basicConfig(
     filename='bot.log'  # Файл, в который будут записываться логи
 )
 
+
 def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(
         '<b>Welcome! This is your bot, ready to assist you.</b>\n\n'
@@ -28,12 +29,14 @@ def start(update: Update, context: CallbackContext) -> None:
     )
     logging.info("User requested /start command.")
 
+
 class FileInfo:
     def __init__(self, name: str, size: str, last_updated: str, download_link: str):
         self.name = name
         self.size = size
         self.last_updated = last_updated
         self.download_link = download_link
+
 
 def extract_files_list(url: str) -> List[FileInfo]:
     try:
@@ -53,6 +56,7 @@ def extract_files_list(url: str) -> List[FileInfo]:
     except (requests.RequestException, ValueError, AttributeError) as e:
         logging.error(f"Error while extracting files list from {url}: {e}")
         return []
+
 
 def rom(update: Update, context: CallbackContext) -> None:
     if len(context.args) != 1:

@@ -31,11 +31,12 @@ install_dependencies() {
   pip install -r requirements.txt
 }
 
-# Функція для запуску бота
+# Запуск бота с выводом на экран и записью логов в файл bot.log
 start_bot() {
   echo "Starting the bot..."
-  python3 bot_start.py
+  python3 bot_start.py 2>&1 | tee -a bot.log
 }
+
 
 # Перевірка наявності віртуального середовища
 if [ -d "$VENV_DIR" ]; then
