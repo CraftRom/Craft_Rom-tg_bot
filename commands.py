@@ -1,4 +1,6 @@
 import logging
+import psutil
+import time
 import requests
 import os
 from telegram import Update
@@ -147,3 +149,37 @@ def rom(update: Update, context: CallbackContext) -> None:
         update.message.reply_text(f"<b>Device code {device_code} not found.</b>", parse_mode='HTML')
         logging.warning(f"Device code {device_code} not found.")
 
+
+def system_info(update: Update, context: CallbackContext) -> None:
+    # Перевірка, чи є користувач адміністратором чату
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+    chat_member = context.bot.get_chat_member(chat_id, user_id)
+    if chat_member.status not in ("creator", "administrator"):
+        update.message.reply_text("You must be an admin to use this command.")
+        return
+    
+    # Отримання часу аптайму
+    uptime = time.time() - psutil.boot_time()
+    uptime_str = time.strftime('%H:%M:%S', time.gmtime(uptime))
+
+    # Отримання навантаження на CPU та RAM
+    cpu_percent = psutil.cpu_percent()
+    ram_percent = psutil.virtual_memory().percent
+
+    # Отримання інформації про пам'ять
+    memory_info = psutil.virtual_memory()
+    total_memory = memory_info.total
+    available_memory = memory_info.available
+
+    # Підготовка повідомлення
+    message = (
+        f"<b>System Uptime:</b> {uptime_str}\n"
+        f"<b>CPU Usage:</b> {cpu_percent}%\n"
+        f"<b>RAM Usage:</b> {ram_percent}%\n"
+        f"<b>Total Memory:</b> {total_memory / (1024 ** 3):.2f} GB\n"
+        f"<b>Available Memory:</b> {available_memory / (1024 ** 3):.2f} GB"
+    )
+
+    # Відправка повідомлення
+    update.message.reply_text(message, parse_mode='HTML')
