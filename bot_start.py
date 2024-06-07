@@ -22,17 +22,25 @@ responses = [
 ]
 
 
+# Функція для випадкового вибору відповіді
+def get_random_response():
+    # Перемішуємо список відповідей
+    random.shuffle(responses)
+    # Повертаємо перший елемент списку
+    return responses[0]
+
+
 # Обробник повідомлень, що містять згадку про бота
 def mention_handler(update, context):
     bot_username = context.bot.username
     if bot_username in update.message.text:
-        # Випадково вибрати відповідь і надіслати її
-        selected_response = random.choice(responses)
-        update.message.reply_text(selected_response)
+        # Відповідь на повідомлення, що бота тегнули
+        response = get_random_response()
+        update.message.reply_text(response)
     elif update.message.reply_to_message and update.message.reply_to_message.from_user.username == bot_username:
-        # Відповідь на повідомлення від бота
-        selected_response = random.choice(responses)
-        update.message.reply_text(selected_response)
+        # Відповідь на повідомлення, що бота тегнули
+        response = get_random_response()
+        update.message.reply_text(response)
 
 
 mention_trigger = MessageHandler(Filters.text & (~Filters.command), mention_handler)
