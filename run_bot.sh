@@ -34,7 +34,7 @@ install_dependencies() {
 # Function to start the bot with output to terminal and logging to bot.log file
 start_bot() {
   echo "Starting the bot..."
-  python3 bot_start.py 2>&1 | tee -a bot.log
+  python3 bot_start.py
 }
 
 # Check if the virtual environment exists
@@ -46,6 +46,6 @@ else
 fi
 
 # Start the bot
-start_bot
+start_bot 2>&1 | tee -a bot.log
 
 
