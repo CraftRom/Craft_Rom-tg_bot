@@ -116,7 +116,7 @@ def rom(update: Update, context: CallbackContext) -> None:
                             f'<i>Date:</i> {files_list[0].last_updated}\n'
                             f'<i>Download:</i> <a href="{files_list[0].download_link}">{files_list[0].name}</a> ({files_list[0].size})')
                     else:
-                        versions_text_list.append(f'<b>Version:</b> {version_code} (Not available)')
+                        versions_text_list.append(f'▪️<b>Version:</b> {version_code} (Not available)')
                 except requests.RequestException as e:
                     versions_text_list.append(f'<b>Version:</b> {version_code} (Error checking availability)')
                     logging.error(f"Error checking availability for version {version_code}: {e}")
@@ -126,7 +126,7 @@ def rom(update: Update, context: CallbackContext) -> None:
             message = (
                 f"#{device_code} #rom\n"
                 f"<b>{brand} | {name}</b>\n\n"
-                f"<b>Device codename:</b> {device_code}\n"
+                f"▪️<b>Device codename:</b> {device_code}\n"
                 f"{versions_text}\n\n"
                 f"<i>Discuss device's, feature's, or just chat about everything.</i>\n"
                 f'<a href="https://discord.gg/vErZGrSyqD">DISCORD CRAFTROM</a> | '
