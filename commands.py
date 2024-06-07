@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from typing import List
-
+import platform
 import requests
 from bs4 import BeautifulSoup
 from telegram import Update, ChatMemberUpdated, ChatMember
@@ -182,8 +182,7 @@ def system_info(update: Update, context: CallbackContext) -> None:
     # Check if the user is a hidden admin
     is_hidden_admin = False
     for event in context.dispatcher.chat_data.get(chat_id, {}).get('hidden_admin_events', []):
-        if isinstance(event,
-                      ChatMemberUpdated) and event.chat == chat_id and event.new_chat_member.user.id == user_id:
+        if isinstance(event, ChatMemberUpdated) and event.chat_id == chat_id and event.new_chat_member.user.id == user_id:
             is_hidden_admin = event.new_chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.CREATOR]
             break
 
@@ -205,14 +204,24 @@ def system_info(update: Update, context: CallbackContext) -> None:
     total_memory = memory_info.total
     available_memory = memory_info.available
 
+    # Get OS and kernel information
+    os_name = platform.system()
+    os_version = platform.version()
+    kernel_version = platform.release()
+
     # Prepare the message
     message = (
         f"<b>System Uptime:</b> {uptime_str}\n"
         f"<b>CPU Usage:</b> {cpu_percent}%\n"
         f"<b>RAM Usage:</b> {ram_percent}%\n"
         f"<b>Total Memory:</b> {total_memory / (1024 ** 3):.2f} GB\n"
-        f"<b>Available Memory:</b> {available_memory / (1024 ** 3):.2f} GB"
+        f"<b>Available Memory:</b> {available_memory / (1024 ** 3):.2f} GB\n"
+        f"<b>OS:</b> {os_name} {os_version}\n"
+        f"<b>Kernel Version:</b> {kernel_version}"
     )
 
-    # Send the message
-    update.message.reply_text(message, parse_mode='HTML')
+    # Send the message to the admin in private
+    context.bot.send_message(chat_id=user_id, text=message, parse_mode='HTML')
+
+    # Notify the chat that the information has been sent in private
+    update.message.reply_text("System information has been sent to you in a private message.")
