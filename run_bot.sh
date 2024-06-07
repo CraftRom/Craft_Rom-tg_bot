@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Назва віртуального середовища
+# Virtual environment name
 VENV_DIR=".venv"
 
-# Функція для створення віртуального середовища
+# Function to create a virtual environment
 create_venv() {
   echo "Creating virtual environment..."
   python3 -m venv $VENV_DIR
   source $VENV_DIR/bin/activate
 }
 
-# Функція для активації віртуального середовища
+# Function to activate the virtual environment
 activate_venv() {
   echo "Activating virtual environment..."
   if [ -f "$VENV_DIR/bin/activate" ]; then
@@ -21,7 +21,7 @@ activate_venv() {
   fi
 }
 
-# Функція для встановлення залежностей
+# Function to install dependencies
 install_dependencies() {
   echo "Installing dependencies..."
   sudo apt install -y python3-pip python3-venv
@@ -31,14 +31,13 @@ install_dependencies() {
   pip install -r requirements.txt
 }
 
-# Запуск бота с выводом на экран и записью логов в файл bot.log
+# Function to start the bot with output to terminal and logging to bot.log file
 start_bot() {
   echo "Starting the bot..."
   python3 bot_start.py 2>&1 | tee -a bot.log
 }
 
-
-# Перевірка наявності віртуального середовища
+# Check if the virtual environment exists
 if [ -d "$VENV_DIR" ]; then
   activate_venv
 else
@@ -46,6 +45,7 @@ else
   install_dependencies
 fi
 
-# Запуск бота
+# Start the bot
 start_bot
+
 
