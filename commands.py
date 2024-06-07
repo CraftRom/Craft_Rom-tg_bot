@@ -136,7 +136,7 @@ def rom(update: Update, context: CallbackContext) -> None:
                         versions_text_list.append(f'▪️<b>Version:</b> {version_code}')
                         versions_text_list.append(
                             f'\n<i>Date:</i> {files_list[0].last_updated}\n'
-                            f'<i>Status:</i> {version_status}'
+                            f'<i>Status:</i> {version_status}\n'
                             f'<i>Download:</i> <a href="{files_list[0].download_link}">{files_list[0].name}</a> ({files_list[0].size})')
                     else:
                         versions_text_list.append(f'▪️<b>Version:</b> {version_code} (Not available)')
