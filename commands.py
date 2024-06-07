@@ -111,14 +111,14 @@ def rom(update: Update, context: CallbackContext) -> None:
                 try:
                     files_list = extract_files_list(sf_url)
                     if files_list:
-                        versions_text_list.append(f'<b>Version:</b> {version_code}')
+                        versions_text_list.append(f'▪️<b>Version:</b> {version_code}')
                         versions_text_list.append(
                             f'<i>Date:</i> {files_list[0].last_updated}\n'
                             f'<i>Download:</i> <a href="{files_list[0].download_link}">{files_list[0].name}</a> ({files_list[0].size})')
                     else:
                         versions_text_list.append(f'▪️<b>Version:</b> {version_code} (Not available)')
                 except requests.RequestException as e:
-                    versions_text_list.append(f'<b>Version:</b> {version_code} (Error checking availability)')
+                    versions_text_list.append(f'▪️<b>Version:</b> {version_code} (Error checking availability)')
                     logging.error(f"Error checking availability for version {version_code}: {e}")
 
             versions_text = "\n".join(versions_text_list)
