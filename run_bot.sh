@@ -34,7 +34,7 @@ install_dependencies() {
 # Function to start the bot with output to terminal and logging to bot.log file
 start_bot() {
   echo "Starting the bot..."
-  python3 bot_start.py 2>&1 | tee -a bot.log
+  python3 bot_start.py
 }
 
 # Check if the virtual environment exists
@@ -50,8 +50,10 @@ if [ -f "bot.log" ]; then
   mv bot.log "bot_$(date +"%Y%m%d_%H%M%S").log"
 fi
 
-# Start the bot and redirect output to terminal and append it to bot.log file
-start_bot
+# Delete log files older than 24 hours
+find . -name "bot_*.log" -type f -mtime +1 -exec rm {} \;
 
+# Start the bot and redirect output to terminal and append it to bot.log file
+start_bot 2>&1 | tee -a bot.log
 
 
