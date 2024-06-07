@@ -13,12 +13,20 @@ create_venv() {
 # Функція для активації віртуального середовища
 activate_venv() {
   echo "Activating virtual environment..."
-  source $VENV_DIR/bin/activate
+  if [ -f "$VENV_DIR/bin/activate" ]; then
+    source $VENV_DIR/bin/activate
+  else
+    echo "Error: Failed to activate virtual environment. File $VENV_DIR/bin/activate not found."
+    exit 1
+  fi
 }
 
 # Функція для встановлення залежностей
 install_dependencies() {
   echo "Installing dependencies..."
+  sudo apt install -y python3-pip python3-venv
+  python3 -m venv $VENV_DIR
+  source $VENV_DIR/bin/activate
   pip install --upgrade pip
   pip install -r requirements.txt
 }
@@ -26,7 +34,7 @@ install_dependencies() {
 # Функція для запуску бота
 start_bot() {
   echo "Starting the bot..."
-  python bot_start.py
+  python3 bot_start.py
 }
 
 # Перевірка наявності віртуального середовища
@@ -39,3 +47,4 @@ fi
 
 # Запуск бота
 start_bot
+
