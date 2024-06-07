@@ -121,7 +121,7 @@ def rom(update: Update, context: CallbackContext) -> None:
                     versions_text_list.append(f'▪️<b>Version:</b> {version_code} (Error checking availability)')
                     logging.error(f"Error checking availability for version {version_code}: {e}")
 
-            versions_text = "\n".join(versions_text_list)
+            versions_text = "\n\n".join(versions_text_list)
 
             message = (
                 f"#{device_code} #rom\n"
