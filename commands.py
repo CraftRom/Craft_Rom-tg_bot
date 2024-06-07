@@ -1,13 +1,13 @@
 import logging
-import psutil
 import time
-import requests
-import os
-from telegram import Update
-from telegram.ext import CallbackContext
-from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import List
+
+import psutil
+import requests
+from bs4 import BeautifulSoup
+from telegram import Update
+from telegram.ext import CallbackContext
 
 # Настройка логирования
 logging.basicConfig(
