@@ -158,7 +158,7 @@ def system_info(update: Update, context: CallbackContext) -> None:
     if chat_member.status not in ("creator", "administrator"):
         update.message.reply_text("You must be an admin to use this command.")
         return
-    
+
     # Отримання часу аптайму
     uptime = time.time() - psutil.boot_time()
     uptime_str = time.strftime('%H:%M:%S', time.gmtime(uptime))
