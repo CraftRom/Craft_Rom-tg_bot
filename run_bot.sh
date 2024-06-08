@@ -9,10 +9,10 @@ cd /home/ubuntu/tg_bot || { echo "Failed to change directory to /home/ubuntu/tg_
 
 # Створіть та активуйте віртуальне середовище
 if [ ! -d ".venv" ]; then
-    python3 -m venv .venv || { echo "Failed to create virtual environment" >> $LOGFILE; exit 1; }
+python3 -m venv /home/ubuntu/tg_bot/.venv || { echo "Failed to create virtual environment" >> $LOGFILE; exit 1; }
 fi
 
-source .venv/bin/activate || { echo "Failed to activate virtual environment" >> $LOGFILE; exit 1; }
+source /home/ubuntu/tg_bot/.venv/bin/activate || { echo "Failed to activate virtual environment" >> $LOGFILE; exit 1; }
 
 # Встановіть залежності, якщо ще не встановлені
 if [ ! -f ".venv/requirements_installed" ]; then
