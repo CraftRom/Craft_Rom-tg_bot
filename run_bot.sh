@@ -49,12 +49,24 @@ stop_bot() {
   else
     echo "Bot is not running."
   fi
+  # Sleep for 3 seconds to allow user to see the message before the script exits
+  sleep 3
+}
+
+# Function to reboot the bot
+reboot_bot() {
+  stop_bot
+  start_bot
 }
 
 # Check if the script is being run with the 'stop' argument
 if [ "$1" = "stop" ]; then
   stop_bot
-  exit 0
+fi
+
+# Check if the script is being run with the 'reboot' argument
+if [ "$1" = "reboot" ]; then
+  reboot_bot
 fi
 
 # Check if the virtual environment exists
@@ -75,3 +87,4 @@ find . -name "bot_*.log" -type f -mtime +1 -exec rm {} \;
 
 # Start the bot and redirect output to terminal and append it to bot.log file
 start_bot
+
