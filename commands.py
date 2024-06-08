@@ -182,7 +182,8 @@ def system_info(update: Update, context: CallbackContext) -> None:
     # Check if the user is a hidden admin
     is_hidden_admin = False
     for event in context.dispatcher.chat_data.get(chat_id, {}).get('hidden_admin_events', []):
-        if isinstance(event, ChatMemberUpdated) and event.chat_id == chat_id and event.new_chat_member.user.id == user_id:
+        if isinstance(event,
+                      ChatMemberUpdated) and event.chat == chat_id and event.new_chat_member.user.id == user_id:
             is_hidden_admin = event.new_chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.CREATOR]
             break
 
@@ -225,3 +226,37 @@ def system_info(update: Update, context: CallbackContext) -> None:
 
     # Notify the chat that the information has been sent in private
     update.message.reply_text("System information has been sent to you in a private message.")
+
+
+def clean(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+
+    # Check if the user is an admin
+    is_admin = False
+    admins = context.bot.get_chat_administrators(chat_id)
+    for admin in admins:
+        if admin.user.id == user_id:
+            is_admin = True
+            break
+
+    # Check if the user is a hidden admin
+    is_hidden_admin = False
+    for event in context.dispatcher.chat_data.get(chat_id, {}).get('hidden_admin_events', []):
+        if isinstance(event,
+                      ChatMemberUpdated) and event.chat == chat_id and event.new_chat_member.user.id == user_id:
+            is_hidden_admin = event.new_chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.CREATOR]
+            break
+
+    if not is_admin and not is_hidden_admin:
+        update.message.reply_text("You must be an admin to use this command.")
+        return
+
+    deleted_count = 0
+    members = context.bot.get_chat_administrators(chat_id)
+    for member in members:
+        if member.user.is_deleted:
+            context.bot.kick_chat_member(chat_id, member.user.id)
+            deleted_count += 1
+
+    update.message.reply_text(f"Removed {deleted_count} deleted accounts from this chat.")
