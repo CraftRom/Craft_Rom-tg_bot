@@ -62,11 +62,13 @@ reboot_bot() {
 # Check if the script is being run with the 'stop' argument
 if [ "$1" = "stop" ]; then
   stop_bot
+  exit 0
 fi
 
 # Check if the script is being run with the 'reboot' argument
 if [ "$1" = "reboot" ]; then
   reboot_bot
+  exit 0
 fi
 
 # Check if the virtual environment exists
