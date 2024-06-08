@@ -24,7 +24,7 @@ if [ ! -f ".venv/requirements_installed" ]; then
 fi
 
 # Запустіть ваш бот
-python3 run_bot.py >> $LOGFILE 2>&1 || { echo "Failed to start bot" >> $LOGFILE; exit 1; }
+python3 bot_start.py >> $LOGFILE 2>&1 || { echo "Failed to start bot" >> $LOGFILE; exit 1; }
 
 echo "Bot script finished at $(date)" >> $LOGFILE
 
