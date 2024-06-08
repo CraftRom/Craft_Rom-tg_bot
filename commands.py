@@ -210,22 +210,32 @@ def system_info(update: Update, context: CallbackContext) -> None:
     os_version = platform.version()
     kernel_version = platform.release()
 
+    # Read bot version from file
+    try:
+        with open('version', 'r') as version_file:
+            bot_version = version_file.read().strip()
+    except FileNotFoundError:
+        bot_version = "Unknown"
+
+    # Get bot name
+    bot_name = context.bot.username
+
     # Prepare the message
     message = (
-        f"<b>System Uptime:</b> {uptime_str}\n"
-        f"<b>CPU Usage:</b> {cpu_percent}%\n"
-        f"<b>RAM Usage:</b> {ram_percent}%\n"
-        f"<b>Total Memory:</b> {total_memory / (1024 ** 3):.2f} GB\n"
-        f"<b>Available Memory:</b> {available_memory / (1024 ** 3):.2f} GB\n"
+        f"<b>{bot_name} v.{bot_version}</b> \n\n"
         f"<b>OS:</b> {os_name} {os_version}\n"
-        f"<b>Kernel Version:</b> {kernel_version}"
+        f"<b>Kernel Version:</b> {kernel_version}\n"
+        f"<b>System Uptime:</b> {uptime_str}\n\n"
+        f"<b>CPU Usage:</b> {cpu_percent}%\n"
+        f"<b>RAM Usage:</b> {ram_percent}%\n\n"
+        f"<b>Total Memory:</b> {total_memory / (1024 ** 3):.2f} GB\n"
+        f"<b>Available Memory:</b> {available_memory / (1024 ** 3):.2f} GB"
     )
 
-    # Send the message to the admin in private
+    # Send the message privately
     context.bot.send_message(chat_id=user_id, text=message, parse_mode='HTML')
-
-    # Notify the chat that the information has been sent in private
-    update.message.reply_text("System information has been sent to you in a private message.")
+    # Notify in the chat that the information was sent
+    update.message.reply_text("System information has been sent to your private messages.", parse_mode='HTML')
 
 
 def clean(update: Update, context: CallbackContext) -> None:
@@ -243,7 +253,8 @@ def clean(update: Update, context: CallbackContext) -> None:
     # Check if the user is a hidden admin
     is_hidden_admin = False
     for event in context.dispatcher.chat_data.get(chat_id, {}).get('hidden_admin_events', []):
-        if isinstance(event, ChatMemberUpdated) and event.chat.id == chat_id and event.new_chat_member.user.id == user_id:
+        if isinstance(event,
+                      ChatMemberUpdated) and event.chat.id == chat_id and event.new_chat_member.user.id == user_id:
             is_hidden_admin = event.new_chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.CREATOR]
             break
 
