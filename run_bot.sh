@@ -74,6 +74,7 @@ fi
 # Check if the virtual environment exists
 if [ -d "$VENV_DIR" ]; then
   activate_venv
+  install_dependencies
 else
   create_venv
   install_dependencies
