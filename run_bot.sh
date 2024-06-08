@@ -6,7 +6,7 @@ VENV_DIR=".venv"
 # Function to create a virtual environment
 create_venv() {
   echo "Creating virtual environment..."
-  python3 -m venv $VENV_DIR
+  python3 -m venv /home/ubuntu/tg_bot/$VENV_DIR
   source $VENV_DIR/bin/activate
 }
 
