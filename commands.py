@@ -135,9 +135,9 @@ def rom(update: Update, context: CallbackContext) -> None:
                     if files_list:
                         versions_text_list.append(f'▪️<b>Version:</b> {version_code}')
                         versions_text_list.append(
-                            f'\n<i>Date:</i> {files_list[0].last_updated}\n'
-                            f'<i>Status:</i> {version_status}\n'
-                            f'<i>Download:</i> <a href="{files_list[0].download_link}">{files_list[0].name}</a> ({files_list[0].size})')
+                            f'\n • <i>Date:</i> {files_list[0].last_updated}\n'
+                            f' • <i>Status:</i> {version_status}\n'
+                            f' • <i>Download:</i> <a href="{files_list[0].download_link}">{files_list[0].name}</a> ({files_list[0].size})')
                     else:
                         versions_text_list.append(f'▪️<b>Version:</b> {version_code} (Not available)')
                 except requests.RequestException as e:
@@ -149,6 +149,7 @@ def rom(update: Update, context: CallbackContext) -> None:
             message = (
                 f"#{device_code} #rom\n"
                 f"<b>{brand} | {name}</b>\n\n"
+                f'Device information: <a href="https://craft-rom.pp.ua/devices/{device_code}/">here</a>\n\n'
                 f"▪️<b>Device codename:</b> {device_code}\n"
                 f"▪️<b>Maintainer:</b> {maintainers}\n"
                 f"{versions_text}\n\n\n"
