@@ -1,7 +1,8 @@
-import os
-import random
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, filters
+import random
+
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
+
 from commands import start, rom, system_info, clean, set_topic
 from filter_messages import filter_messages
 
@@ -48,8 +49,8 @@ mention_trigger = MessageHandler(filters.TEXT & ~filters.COMMAND, mention_handle
 
 
 def main():
-    updater = Updater("TELEGRAM_TOKEN", use_context=True)
-    dispatcher = updater.dispatcher
+    application = Application.builder().token("TELEGRAM_TOKEN").build()
+    dispatcher = application.dispatcher
 
     # Додавання обробників команд
     dispatcher.add_handler(CommandHandler('start', start))
@@ -61,9 +62,9 @@ def main():
     dispatcher.add_handler(CommandHandler("set_topic", set_topic, pass_args=True))
     dispatcher.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, filter_messages))
     # Запуск бота
-    updater.start_polling()
+    application.start_polling()
     logger.info("Bot started polling...")
-    updater.idle()
+    application.idle()
 
 
 if __name__ == '__main__':
