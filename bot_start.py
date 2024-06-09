@@ -2,7 +2,8 @@ import os
 import random
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from commands import start, rom, system_info, clean
+from commands import start, rom, system_info, clean, set_topic
+from filter_messages import filter_messages
 
 # Налаштування логування
 logging.basicConfig(
@@ -57,6 +58,8 @@ def main():
     dispatcher.add_handler(CommandHandler('sysinfo', system_info))
     dispatcher.add_handler(CommandHandler('clean', clean))
     dispatcher.add_handler(mention_trigger)
+    dispatcher.add_handler(CommandHandler("set_topic", set_topic, pass_args=True))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, filter_messages))
     # Запуск бота
     updater.start_polling()
     logger.info("Bot started polling...")
