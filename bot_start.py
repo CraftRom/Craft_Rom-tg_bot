@@ -48,7 +48,7 @@ mention_trigger = MessageHandler(filters.TEXT & ~filters.COMMAND, mention_handle
 
 
 def main():
-    updater = Updater(token=os.getenv('TELEGRAM_TOKEN'), use_context=True)
+    updater = Updater("TELEGRAM_TOKEN", use_context=True)
     dispatcher = updater.dispatcher
 
     # Додавання обробників команд
