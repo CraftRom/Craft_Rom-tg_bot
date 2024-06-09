@@ -44,7 +44,7 @@ def mention_handler(update, context):
         update.message.reply_text(response)
 
 
-mention_trigger = MessageHandler(filters.TEXT & ~filters.COMMAND, mention_handler)
+mention_trigger = MessageHandler(filters.Text & ~filters.COMMAND, mention_handler)
 
 
 def main():
@@ -59,7 +59,7 @@ def main():
     dispatcher.add_handler(CommandHandler('clean', clean))
     dispatcher.add_handler(mention_trigger)
     dispatcher.add_handler(CommandHandler("set_topic", set_topic, pass_args=True))
-    dispatcher.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, filter_messages))
+    dispatcher.add_handler(MessageHandler(filters.Text & ~filters.COMMAND, filter_messages))
     # Запуск бота
     updater.start_polling()
     logger.info("Bot started polling...")
