@@ -25,9 +25,11 @@ async def set_topic(update: Update, context: CallbackContext):
     user = update.effective_user
 
     chat_id = update.effective_chat.id
+    message_thread_id = update.message.message_thread_id  # Отримати значення message_thread_id
+
     if is_user_admin(update, context, user.id, chat_id):
         try:
-            proposal_thread_id = int(context.args[0])
+            proposal_thread_id = message_thread_id  # Встановити proposal_thread_id як message_thread_id
             await save_topic_id(proposal_thread_id)  # Збереження ідентифікатора у файл
             await update.message.reply_text(f"Ідентифікатор топіка для пропозицій встановлено: {proposal_thread_id}")
         except (IndexError, ValueError):
