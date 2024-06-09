@@ -18,8 +18,9 @@ logging.basicConfig(
 # Глобальна змінна для зберігання ідентифікатора топіка
 proposal_thread_id = load_topic_id()
 
+
 # Команда для встановлення ідентифікатора топіка (доступна тільки адміністраторам)
-def set_topic(update: Update, context: CallbackContext):
+async def set_topic(update: Update, context: CallbackContext):
     global proposal_thread_id
     user = update.effective_user
 
@@ -27,12 +28,12 @@ def set_topic(update: Update, context: CallbackContext):
     if is_user_admin(update, context, user.id, chat_id):
         try:
             proposal_thread_id = int(context.args[0])
-            save_topic_id(proposal_thread_id)  # Збереження ідентифікатора у файл
-            update.message.reply_text(f"Ідентифікатор топіка для пропозицій встановлено: {proposal_thread_id}")
+            await save_topic_id(proposal_thread_id)  # Збереження ідентифікатора у файл
+            await update.message.reply_text(f"Ідентифікатор топіка для пропозицій встановлено: {proposal_thread_id}")
         except (IndexError, ValueError):
-            update.message.reply_text("Будь ласка, вкажіть дійсний ідентифікатор топіка.")
+            await update.message.reply_text("Будь ласка, вкажіть дійсний ідентифікатор топіка.")
     else:
-        update.message.reply_text("Ви не маєте прав для виконання цієї команди.")
+        await update.message.reply_text("Ви не маєте прав для виконання цієї команди.")
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -49,7 +50,8 @@ def start(update: Update, context: CallbackContext) -> None:
     )
     logging.info("User requested /start command.")
 
-def rom(update: Update, context: CallbackContext) -> None:
+
+async def rom(update: Update, context: CallbackContext) -> None:
     device_code = context.args[0] if context.args else None
 
     try:
@@ -57,17 +59,17 @@ def rom(update: Update, context: CallbackContext) -> None:
         response.raise_for_status()
         devices_data = response.json()
     except requests.RequestException as e:
-        update.message.reply_text(f"<b>Error:</b> {e}", parse_mode='HTML')
+        await update.message.reply_text(f"<b>Error:</b> {e}", parse_mode='HTML')
         logging.error(f"Error fetching devices data: {e}")
         return
 
     if not device_code:
         if not devices_data:
-            update.message.reply_text("Device code list is empty or not found.")
+            await update.message.reply_text("Device code list is empty or not found.")
         else:
             device_codes = [device['codename'] for device in devices_data]
             device_codes_str = ", ".join(device_codes)
-            update.message.reply_text(
+            await update.message.reply_text(
                 '<b>Please specify the device code.</b>\n'
                 'Example: <code>/rom onclite</code>\n'
                 'You can also use <code>/rom</code> to get a list of supported devices.\n\n'
@@ -78,7 +80,7 @@ def rom(update: Update, context: CallbackContext) -> None:
 
     device = next((d for d in devices_data if d.get('codename') == device_code), None)
     if not device:
-        update.message.reply_text(f"<b>Device code {device_code} not found.</b>", parse_mode='HTML')
+        await update.message.reply_text(f"<b>Device code {device_code} not found.</b>", parse_mode='HTML')
         logging.warning(f"Device code {device_code} not found.")
         return
 
@@ -128,15 +130,16 @@ def rom(update: Update, context: CallbackContext) -> None:
         f'<a href="http://t.me/craftrom">CHAT CRAFTROM</a> | '
         f'<a href="http://t.me/craftrom_news">NEWS</a>'
     )
-    update.message.reply_text(message, parse_mode='HTML', disable_web_page_preview=True)
+    await update.message.reply_text(message, parse_mode='HTML', disable_web_page_preview=True)
     logging.info(f"Device info sent for device code {device_code}.")
 
-def system_info(update: Update, context: CallbackContext) -> None:
+
+async def system_info(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
 
     if not is_user_admin(update, context, user_id, chat_id):
-        update.message.reply_text("You must be an admin to use this command.")
+        await update.message.reply_text("You must be an admin to use this command.")
         return
 
     uptime = time.time() - psutil.boot_time()
@@ -168,16 +171,16 @@ def system_info(update: Update, context: CallbackContext) -> None:
         f"<b>Available Memory:</b> {available_memory:.2f} GB"
     )
 
-    context.bot.send_message(chat_id=user_id, text=message, parse_mode='HTML')
-    update.message.reply_text("System information has been sent to your private messages.", parse_mode='HTML')
+    await context.bot.send_message(chat_id=user_id, text=message, parse_mode='HTML')
+    await update.message.reply_text("System information has been sent to your private messages.", parse_mode='HTML')
 
 
-def clean(update: Update, context: CallbackContext) -> None:
+async def clean(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
 
     if not is_user_admin(update, context, user_id, chat_id):
-        update.message.reply_text("You must be an admin to use this command.")
+        await update.message.reply_text("You must be an admin to use this command.")
         return
 
     try:
@@ -187,8 +190,8 @@ def clean(update: Update, context: CallbackContext) -> None:
             context.bot.kick_chat_member(chat_id, user_id)
             logging.info(f"Kicked deleted account: {user_id}")
 
-        update.message.reply_text(f"Cleaned up {len(deleted_accounts)} deleted accounts.")
+        await update.message.reply_text(f"Cleaned up {len(deleted_accounts)} deleted accounts.")
         logging.info(f"Cleaned {len(deleted_accounts)} deleted accounts from chat {chat_id}.")
     except Exception as e:
-        update.message.reply_text(f"An error occurred: {e}")
+        await update.message.reply_text(f"An error occurred: {e}")
         logging.error(f"Error cleaning deleted accounts: {e}")

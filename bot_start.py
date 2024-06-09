@@ -34,7 +34,7 @@ def get_random_response():
 
 
 # Обробник повідомлень, що містять згадку про бота
-def mention_handler(update, context):
+async def mention_handler(update, context):
     bot_username = context.bot.username
     if bot_username in update.message.text:
         # Відповідь на повідомлення, що бота тегнули

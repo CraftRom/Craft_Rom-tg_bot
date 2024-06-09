@@ -10,12 +10,12 @@ from telegram.ext import CallbackContext
 TOPIC_ID_FILE = 'topic_id.json'
 
 
-def save_topic_id(topic_id):
+async def save_topic_id(topic_id):
     with open(TOPIC_ID_FILE, 'w') as file:
         json.dump({'topic_id': topic_id}, file)
 
 
-def load_topic_id():
+async def load_topic_id():
     try:
         with open(TOPIC_ID_FILE, 'r') as file:
             data = json.load(file)
@@ -24,7 +24,7 @@ def load_topic_id():
         return None
 
 
-def is_user_admin(update: Update, context: CallbackContext, user_id: int, chat_id: int) -> bool:
+async def is_user_admin(update: Update, context: CallbackContext, user_id: int, chat_id: int) -> bool:
     admins = context.bot.get_chat_administrators(chat_id)
     for admin in admins:
         if admin.user.id == user_id:
@@ -48,7 +48,7 @@ class FileInfo:
         self.download_link = download_link
 
 
-def extract_files_list(url: str) -> List[FileInfo]:
+async def extract_files_list(url: str) -> List[FileInfo]:
     try:
         response = requests.get(url)
         response.raise_for_status()
