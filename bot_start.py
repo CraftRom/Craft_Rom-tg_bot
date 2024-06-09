@@ -61,7 +61,7 @@ def main():
     application.add_handler(CommandHandler("set_topic", set_topic))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, filter_messages))
     # Запуск бота
-    application.start_polling()
+    application.run_polling()
     logger.info("Bot started polling...")
     application.idle()
 
