@@ -36,8 +36,8 @@ async def set_topic(update: Update, context: CallbackContext):
         await update.message.reply_text("Ви не маєте прав для виконання цієї команди.")
 
 
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text(
+async def start(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text(
         '<b>Welcome! This is your bot, ready to assist you.</b>\n\n'
         '<b>Description:</b>\n'
         'This bot provides information about supported devices for CRAFT ROM, including the latest available versions and download links.\n\n'
