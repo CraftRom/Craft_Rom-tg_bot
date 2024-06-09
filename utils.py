@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import List
 from bs4 import BeautifulSoup
 from telegram import Update, ChatMemberUpdated, ChatMember
+from telegram.ext import CallbackContext
 
 TOPIC_ID_FILE = 'topic_id.json'
 
