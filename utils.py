@@ -24,17 +24,16 @@ def load_topic_id():
         return None
 
 
-def is_user_admin(update: Update, context: CallbackContext, user_id: int, chat_id: int) -> bool:
-    admins = context.bot.get_chat_administrators(chat_id)
+async def is_user_admin(update: Update, context: CallbackContext, user_id: int, chat_id: int) -> bool:
+    admins = await context.bot.get_chat_administrators(chat_id)
     for admin in admins:
         if admin.user.id == user_id:
             return True
 
-    hidden_admin_events = context.dispatcher.chat_data.get(chat_id, {}).get('hidden_admin_events', [])
+    hidden_admin_events = context.chat_data.get(chat_id, {}).get('hidden_admin_events', [])
     for event in hidden_admin_events:
-        if isinstance(event,
-                      ChatMemberUpdated) and event.chat.id == chat_id and event.new_chat_member.user.id == user_id:
-            if event.new_chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.CREATOR]:
+        if isinstance(event, ChatMemberUpdated) and event.chat.id == chat_id and event.new_chat_member.user.id == user_id:
+            if event.new_chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.OWNER]:
                 return True
 
     return False
