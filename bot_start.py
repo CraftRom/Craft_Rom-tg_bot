@@ -63,7 +63,6 @@ def main():
     # Запуск бота
     application.run_polling()
     logger.info("Bot started polling...")
-    application.idle()
 
 
 if __name__ == '__main__':
