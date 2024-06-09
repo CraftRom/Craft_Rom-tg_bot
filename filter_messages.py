@@ -3,7 +3,7 @@ from telegram.ext import CallbackContext
 from utils import load_topic_id
 
 
-async def filter_messages(update: Update, context: CallbackContext):
+def filter_messages(update: Update, context: CallbackContext):
     proposal_thread_id = load_topic_id()
     thread_id = update.message.message_thread_id
 
