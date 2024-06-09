@@ -53,12 +53,12 @@ def main():
 
     # Додавання обробників команд
     application.add_handler(CommandHandler('start', start))
-    application.add_handler(CommandHandler('rom', rom, pass_args=True))
+    application.add_handler(CommandHandler('rom', rom))
     # Додати обробник команди /sysinfo
     application.add_handler(CommandHandler('sysinfo', system_info))
     application.add_handler(CommandHandler('clean', clean))
     application.add_handler(mention_trigger)
-    application.add_handler(CommandHandler("set_topic", set_topic, pass_args=True))
+    application.add_handler(CommandHandler("set_topic", set_topic))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, filter_messages))
     # Запуск бота
     application.start_polling()
