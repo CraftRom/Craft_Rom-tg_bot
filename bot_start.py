@@ -1,7 +1,8 @@
 import logging
+import os
 import random
 
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import Application, ApplicationBuilder, CommandHandler, MessageHandler, filters
 
 from commands import start, rom, system_info, clean, set_topic
 from filter_messages import filter_messages
@@ -49,7 +50,7 @@ mention_trigger = MessageHandler(filters.TEXT & ~filters.COMMAND, mention_handle
 
 
 def main():
-    application = Application.builder().token("TELEGRAM_TOKEN").build()
+    application = ApplicationBuilder().token(os.getenv('TELEGRAM_TOKEN')).build()
 
     # Додавання обробників команд
     application.add_handler(CommandHandler('start', start))
