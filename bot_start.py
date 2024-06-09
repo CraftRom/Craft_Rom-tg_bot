@@ -50,17 +50,16 @@ mention_trigger = MessageHandler(filters.TEXT & ~filters.COMMAND, mention_handle
 
 def main():
     application = Application.builder().token("TELEGRAM_TOKEN").build()
-    dispatcher = application.dispatcher
 
     # Додавання обробників команд
-    dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(CommandHandler('rom', rom, pass_args=True))
+    application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('rom', rom, pass_args=True))
     # Додати обробник команди /sysinfo
-    dispatcher.add_handler(CommandHandler('sysinfo', system_info))
-    dispatcher.add_handler(CommandHandler('clean', clean))
-    dispatcher.add_handler(mention_trigger)
-    dispatcher.add_handler(CommandHandler("set_topic", set_topic, pass_args=True))
-    dispatcher.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, filter_messages))
+    application.add_handler(CommandHandler('sysinfo', system_info))
+    application.add_handler(CommandHandler('clean', clean))
+    application.add_handler(mention_trigger)
+    application.add_handler(CommandHandler("set_topic", set_topic, pass_args=True))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, filter_messages))
     # Запуск бота
     application.start_polling()
     logger.info("Bot started polling...")
