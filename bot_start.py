@@ -1,7 +1,7 @@
 import os
 import random
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, filters
 from commands import start, rom, system_info, clean, set_topic
 from filter_messages import filter_messages
 
@@ -44,7 +44,7 @@ def mention_handler(update, context):
         update.message.reply_text(response)
 
 
-mention_trigger = MessageHandler(Filters.text & (~Filters.command), mention_handler)
+mention_trigger = MessageHandler(filters.TEXT & ~filters.COMMAND, mention_handler)
 
 
 def main():
@@ -59,7 +59,7 @@ def main():
     dispatcher.add_handler(CommandHandler('clean', clean))
     dispatcher.add_handler(mention_trigger)
     dispatcher.add_handler(CommandHandler("set_topic", set_topic, pass_args=True))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, filter_messages))
+    dispatcher.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, filter_messages))
     # Запуск бота
     updater.start_polling()
     logger.info("Bot started polling...")

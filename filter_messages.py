@@ -1,6 +1,8 @@
 from telegram import Update
 from telegram.ext import CallbackContext
 from utils import load_topic_id
+
+
 def filter_messages(update: Update, context: CallbackContext):
     proposal_thread_id = load_topic_id()
 
