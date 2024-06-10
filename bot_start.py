@@ -5,6 +5,7 @@ import random
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
 from commands import start, rom, system_info, clean, set_topic, init
+from filter_messages import delete_non_suggestion_messages
 
 # Налаштування логування
 logging.basicConfig(
@@ -60,6 +61,8 @@ def main():
     application.add_handler(mention_trigger)
     application.add_handler(CommandHandler("set_topic", set_topic))
     application.add_handler(CommandHandler("init", init))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, delete_non_suggestion_messages))
+
     # Запуск бота
     application.run_polling()
     logger.info("Bot started polling...")
