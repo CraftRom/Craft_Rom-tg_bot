@@ -5,8 +5,9 @@ import time
 import psutil
 import requests
 from telegram import Update
-from telegram.ext import CallbackContext
-from utils import save_topic_id, load_topic_id, is_user_admin, extract_files_list
+from telegram.ext import CallbackContext, ContextTypes
+from utils import is_user_admin, extract_files_list, load_channels, save_channels, \
+    find_owner_id, is_chat_initialized
 
 # Настройка логирования
 logging.basicConfig(
@@ -15,27 +16,76 @@ logging.basicConfig(
     filename='bot.log'  # Файл, в который будут записываться логи
 )
 
-# Глобальна змінна для зберігання ідентифікатора топіка
-proposal_thread_id = load_topic_id()
+
+async def init(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    chat_title = update.effective_chat.title
+
+    # Check if the chat is private
+    if update.effective_chat.type == "private":
+        await update.message.reply_text('The /init command cannot be used in private chats.')
+        return
+
+    channels = load_channels()
+
+    if await is_chat_initialized(chat_id):
+        await update.message.reply_text('This channel has already been initialized.')
+        return
+
+    owner_id = await find_owner_id(context.bot, chat_id)
+    if owner_id is None:
+        await update.message.reply_text('Could not determine the owner of the chat.')
+        return
+
+    channels.append({
+        "channel_id": str(chat_id),
+        "owner_id": str(owner_id),
+        "channel_title": chat_title
+    })
+
+    save_channels(channels)
+
+    await update.message.reply_text('Channel successfully initialized!')
 
 
 # Команда для встановлення ідентифікатора топіка (доступна тільки адміністраторам)
-async def set_topic(update: Update, context: CallbackContext):
-    global proposal_thread_id
+async def set_topic(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
 
     chat_id = update.effective_chat.id
-    message_thread_id = update.message.message_thread_id  # Отримати значення message_thread_id
+    if not await is_chat_initialized(chat_id):
+        await update.message.reply_text('This channel is not initialized.')
+        return
 
-    if is_user_admin(update, context, user.id, chat_id):
-        try:
-            proposal_thread_id = message_thread_id  # Встановити proposal_thread_id як message_thread_id
-            save_topic_id(proposal_thread_id)  # Збереження ідентифікатора у файл
-            await update.message.reply_text(f"Ідентифікатор топіка для пропозицій встановлено: {proposal_thread_id}")
-        except (IndexError, ValueError):
-            await update.message.reply_text("Будь ласка, вкажіть дійсний ідентифікатор топіка.")
-    else:
-        await update.message.reply_text("Ви не маєте прав для виконання цієї команди.")
+    is_admin = await is_user_admin(update, context, user.id, chat_id)
+    if not is_admin:
+        await update.message.reply_text("You do not have permission to execute this command.")
+        return
+
+    message_thread_id = update.message.message_thread_id  # Get the value of message_thread_id
+
+    try:
+        # Load the channels list
+        channels = load_channels()
+
+        # Find the chat in the channels list by chat_id
+        for channel in channels:
+            if channel['channel_id'] == str(chat_id):
+                # Check if topic_suggestion already exists and is equal to message_thread_id
+                if 'topic_suggestion' in channel and channel['topic_suggestion'] == str(message_thread_id):
+                    await update.message.reply_text("The topic suggestion ID is already set to this value.")
+                    return
+
+                # Add the "topic_suggestion" field with the value of message_thread_id
+                channel['topic_suggestion'] = str(message_thread_id)
+                break
+
+        # Save the updated channels list
+        save_channels(channels)
+
+        await update.message.reply_text(f"Topic suggestion ID set: {message_thread_id}")
+    except (IndexError, ValueError):
+        await update.message.reply_text("Please specify a valid topic ID.")
 
 
 async def start(update: Update, context: CallbackContext) -> None:
@@ -140,7 +190,11 @@ async def system_info(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
 
-    if not is_user_admin(update, context, user_id, chat_id):
+    if not await is_chat_initialized(chat_id):
+        await update.message.reply_text('This channel is not initialized.')
+        return
+
+    if not await is_user_admin(update, context, user_id, chat_id):
         await update.message.reply_text("You must be an admin to use this command.")
         return
 
@@ -180,6 +234,9 @@ async def system_info(update: Update, context: CallbackContext) -> None:
 async def clean(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
+    if not await is_chat_initialized(chat_id):
+        await update.message.reply_text('This channel is not initialized.')
+        return
 
     if not is_user_admin(update, context, user_id, chat_id):
         await update.message.reply_text("You must be an admin to use this command.")

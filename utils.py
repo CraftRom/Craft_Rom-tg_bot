@@ -1,27 +1,43 @@
 import json
 import logging
+import os
+
 import requests
 from datetime import datetime
 from typing import List
 from bs4 import BeautifulSoup
 from telegram import Update, ChatMemberUpdated, ChatMember
-from telegram.ext import CallbackContext
+from telegram.ext import CallbackContext, ContextTypes
 
-TOPIC_ID_FILE = 'topic_id.json'
-
-
-def save_topic_id(topic_id):
-    with open(TOPIC_ID_FILE, 'w') as file:
-        json.dump({'topic_id': topic_id}, file)
+CHANNELS_FILE = 'channels.json'
 
 
-def load_topic_id():
+def load_channels():
+    if os.path.exists(CHANNELS_FILE):
+        with open(CHANNELS_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+
+def save_channels(channels):
+    with open(CHANNELS_FILE, 'w') as f:
+        json.dump(channels, f, indent=4)
+
+
+async def find_owner_id(bot, chat_id):
     try:
-        with open(TOPIC_ID_FILE, 'r') as file:
-            data = json.load(file)
-            return data.get('topic_id')
-    except (FileNotFoundError, json.JSONDecodeError):
-        return None
+        administrators = await bot.get_chat_administrators(chat_id)
+        for admin in administrators:
+            if admin.status == 'creator':
+                return admin.user.id
+    except Exception as e:
+        print(f"Error fetching owner ID: {e}")
+    return None
+
+
+async def is_chat_initialized(chat_id):
+    channels = load_channels()
+    return any(channel['channel_id'] == str(chat_id) for channel in channels)
 
 
 async def is_user_admin(update: Update, context: CallbackContext, user_id: int, chat_id: int) -> bool:
@@ -32,7 +48,8 @@ async def is_user_admin(update: Update, context: CallbackContext, user_id: int, 
 
     hidden_admin_events = context.chat_data.get(chat_id, {}).get('hidden_admin_events', [])
     for event in hidden_admin_events:
-        if isinstance(event, ChatMemberUpdated) and event.chat.id == chat_id and event.new_chat_member.user.id == user_id:
+        if isinstance(event,
+                      ChatMemberUpdated) and event.chat.id == chat_id and event.new_chat_member.user.id == user_id:
             if event.new_chat_member.status in [ChatMember.ADMINISTRATOR, ChatMember.OWNER]:
                 return True
 
