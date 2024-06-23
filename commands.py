@@ -230,7 +230,6 @@ async def system_info(update: Update, context: CallbackContext) -> None:
     await context.bot.send_message(chat_id=user_id, text=message, parse_mode='HTML')
     await update.message.reply_text("System information has been sent to your private messages.", parse_mode='HTML')
 
-
 async def clean(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
@@ -243,10 +242,11 @@ async def clean(update: Update, context: CallbackContext) -> None:
         return
 
     try:
-        deleted_accounts = [member.user.id for member in context.bot.get_chat_administrators(chat_id) if
-                            member.user.first_name == "Deleted Account"]
+        chat_administrators = await context.bot.get_chat_administrators(chat_id)
+        deleted_accounts = [member.user.id for member in chat_administrators if member.user.first_name == "Deleted Account"]
+
         for user_id in deleted_accounts:
-            context.bot.kick_chat_member(chat_id, user_id)
+            await context.bot.kick_chat_member(chat_id, user_id)
             logging.info(f"Kicked deleted account: {user_id}")
 
         await update.message.reply_text(f"Cleaned up {len(deleted_accounts)} deleted accounts.")
@@ -254,3 +254,4 @@ async def clean(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         await update.message.reply_text(f"An error occurred: {e}")
         logging.error(f"Error cleaning deleted accounts: {e}")
+
