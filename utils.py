@@ -4,7 +4,7 @@ import os
 
 import requests
 from datetime import datetime
-from typing import List
+from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 from telegram import Update, ChatMemberUpdated, ChatMember
 from telegram.ext import CallbackContext, ContextTypes
@@ -82,3 +82,35 @@ def extract_files_list(url: str) -> List[FileInfo]:
     except (requests.RequestException, ValueError, AttributeError) as e:
         logging.error(f"Error while extracting files list from {url}: {e}")
         return []
+
+async def fetch_devices_data() -> Optional[List[Dict[str, Any]]]:
+    try:
+        response = requests.get('https://raw.githubusercontent.com/craftrom-os/official_devices/master/devices.json')
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error(f"Error fetching devices data: {e}")
+        return None
+
+def get_supported_devices(devices_data: List[Dict[str, Any]]) -> List[str]:
+    supported_devices = []
+    for device in devices_data:
+        name = device['name']
+        variant_names = device.get('variant_name', [])
+        variant_names_str = ", ".join(variant_names) if variant_names else device['codename']
+        non_deprecated_versions = [
+            version for version in device.get('supported_versions', [])
+            if not version.get('deprecated')
+        ]
+        if non_deprecated_versions:
+            supported_devices.append(f" - {name} ({variant_names_str})")
+    return supported_devices
+
+def get_device_by_code(devices_data: List[Dict[str, Any]], device_code: str) -> Optional[Dict[str, Any]]:
+    return next((d for d in devices_data if device_code in d.get('variant_name', [])), None)
+
+async def send_error_message(update, message: str):
+    await update.message.reply_text(f"<b>Error:</b> {message}", parse_mode='HTML')
+
+async def send_message(update, message: str, parse_mode='HTML', disable_web_page_preview=True):
+    await update.message.reply_text(message, parse_mode=parse_mode, disable_web_page_preview=disable_web_page_preview)        
