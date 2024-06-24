@@ -123,13 +123,13 @@ async def devices(update: Update, context: CallbackContext) -> None:
     for device in devices_data:
         name = device['name']
         variant_names = device.get('variant_name', [])
-        variant_names_str = "/".join(variant_names) if variant_names else device['codename']
+        variant_names_str = ", ".join(variant_names) if variant_names else device['codename']
         non_deprecated_versions = [
             version for version in device.get('supported_versions', [])
             if not version.get('deprecated')
         ]
         if non_deprecated_versions:
-            supported_devices.append(f" - {name} (/{variant_names_str})")
+            supported_devices.append(f" - {name} ({variant_names_str})")
 
     if not supported_devices:
         await update.message.reply_text("No supported devices with non-deprecated releases found.")
