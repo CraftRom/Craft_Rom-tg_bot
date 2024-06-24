@@ -102,6 +102,47 @@ async def start(update: Update, context: CallbackContext) -> None:
     )
     logging.info("User requested /start command.")
 
+import requests
+import logging
+
+async def devices(update: Update, context: CallbackContext) -> None:
+    try:
+        response = requests.get('https://raw.githubusercontent.com/craftrom-os/official_devices/master/devices.json')
+        response.raise_for_status()
+        devices_data = response.json()
+    except requests.RequestException as e:
+        await update.message.reply_text(f"<b>Error:</b> {e}", parse_mode='HTML')
+        logging.error(f"Error fetching devices data: {e}")
+        return
+
+    if not devices_data:
+        await update.message.reply_text("Device code list is empty or not found.")
+        return
+
+    supported_devices = []
+    for device in devices_data:
+        name = device['name']
+        variant_names = device.get('variant_name', [])
+        variant_names_str = "/".join(variant_names) if variant_names else device['codename']
+        non_deprecated_versions = [
+            version for version in device.get('supported_versions', [])
+            if not version.get('deprecated')
+        ]
+        if non_deprecated_versions:
+            supported_devices.append(f" - {name} (/{variant_names_str})")
+
+    if not supported_devices:
+        await update.message.reply_text("No supported devices with non-deprecated releases found.")
+        return
+
+    supported_devices_str = "\n".join(supported_devices)
+    message = (
+        "<b>Supported devices releases:</b>\n" +
+        supported_devices_str +
+        "\n\nTo get the latest release type /rom (codename), for example: /rom onclite"
+    )
+    await update.message.reply_text(message, parse_mode='HTML', disable_web_page_preview=True)
+    logging.info("Supported devices list sent.")
 
 async def rom(update: Update, context: CallbackContext) -> None:
     device_code = context.args[0] if context.args else None
