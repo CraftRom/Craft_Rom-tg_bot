@@ -4,7 +4,7 @@ import random
 
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
-from commands import start, rom, system_info, clean, set_topic, init
+from commands import start, devices, rom, system_info, clean, set_topic, init
 from filter_messages import delete_non_suggestion_messages
 
 # Налаштування логування
@@ -54,6 +54,7 @@ def main():
 
     # Додавання обробників команд
     application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('devices', devices))
     application.add_handler(CommandHandler('rom', rom))
     # Додати обробник команди /sysinfo
     application.add_handler(CommandHandler('sysinfo', system_info))
