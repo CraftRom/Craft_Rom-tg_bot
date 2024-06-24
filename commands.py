@@ -130,7 +130,7 @@ async def rom(update: Update, context: CallbackContext) -> None:
             )
         return
 
-    device = next((d for d in devices_data if d.get('codename') == device_code), None)
+    device = next((d for d in devices_data if device_code in d.get('variant_name', [])), None)
     if not device:
         await update.message.reply_text(f"<b>Device code {device_code} not found.</b>", parse_mode='HTML')
         logging.warning(f"Device code {device_code} not found.")
@@ -138,6 +138,8 @@ async def rom(update: Update, context: CallbackContext) -> None:
 
     name = device.get('name')
     brand = device.get('brand')
+    variant_names = device.get('variant_name', [])
+    variant_names_str = ", ".join(variant_names)
     maintainers = device.get('maintainers', 'No maintainers')
     supported_versions = device.get('supported_versions', [])
     latest_versions = supported_versions[-2:] if len(supported_versions) >= 2 else supported_versions
@@ -175,6 +177,7 @@ async def rom(update: Update, context: CallbackContext) -> None:
         f"<b>{brand} | {name}</b>\n\n"
         f'Device information: <a href="https://craft-rom.pp.ua/devices/{device_code}/">here</a>\n\n'
         f"▪️<b>Device codename:</b> {device_code}\n"
+        f"▪️<b>Variant names:</b> {variant_names_str}\n"
         f"▪️<b>Maintainer:</b> {maintainers}\n"
         f"{versions_text}\n\n\n"
         f"<i>Discuss device's, feature's, or just chat about everything.</i>\n"
@@ -184,7 +187,6 @@ async def rom(update: Update, context: CallbackContext) -> None:
     )
     await update.message.reply_text(message, parse_mode='HTML', disable_web_page_preview=True)
     logging.info(f"Device info sent for device code {device_code}.")
-
 
 async def system_info(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
