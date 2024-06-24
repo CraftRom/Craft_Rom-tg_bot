@@ -217,7 +217,10 @@ async def system_info(update: Update, context: CallbackContext) -> None:
     except FileNotFoundError:
         bot_version = "Unknown"
 
-    bot_name = context.bot.username
+   # Retrieve bot's details
+    bot_info = await context.bot.get_me()
+    bot_name = bot_info.first_name
+    
     message = (
         f"<b>{bot_name} v.{bot_version}</b> \n\n"
         f"<b>OS:</b> {os_name} {os_version}\n"
