@@ -7,7 +7,7 @@ import requests
 from telegram import Update
 from telegram.ext import CallbackContext, ContextTypes
 from utils import is_user_admin, extract_files_list, load_channels, save_channels, \
-    find_owner_id, is_chat_initialized
+    find_owner_id, is_chat_initialized, fetch_devices_data, get_supported_devices, get_device_by_code, send_error_message, send_message
 
 # Настройка логирования
 logging.basicConfig(
@@ -106,33 +106,18 @@ import requests
 import logging
 
 async def devices(update: Update, context: CallbackContext) -> None:
-    try:
-        response = requests.get('https://raw.githubusercontent.com/craftrom-os/official_devices/master/devices.json')
-        response.raise_for_status()
-        devices_data = response.json()
-    except requests.RequestException as e:
-        await update.message.reply_text(f"<b>Error:</b> {e}", parse_mode='HTML')
-        logging.error(f"Error fetching devices data: {e}")
+    devices_data = await fetch_devices_data()
+    if devices_data is None:
+        await send_error_message(update, "Unable to fetch devices data.")
         return
 
     if not devices_data:
-        await update.message.reply_text("Device code list is empty or not found.")
+        await send_message(update, "Device code list is empty or not found.")
         return
 
-    supported_devices = []
-    for device in devices_data:
-        name = device['name']
-        variant_names = device.get('variant_name', [])
-        variant_names_str = ", ".join(variant_names) if variant_names else device['codename']
-        non_deprecated_versions = [
-            version for version in device.get('supported_versions', [])
-            if not version.get('deprecated')
-        ]
-        if non_deprecated_versions:
-            supported_devices.append(f" - {name} ({variant_names_str})")
-
+    supported_devices = get_supported_devices(devices_data)
     if not supported_devices:
-        await update.message.reply_text("No supported devices with non-deprecated releases found.")
+        await send_message(update, "No supported devices with non-deprecated releases found.")
         return
 
     supported_devices_str = "\n".join(supported_devices)
@@ -141,39 +126,33 @@ async def devices(update: Update, context: CallbackContext) -> None:
         supported_devices_str +
         "\n\nTo get the latest release type /rom (codename), for example: /rom onclite"
     )
-    await update.message.reply_text(message, parse_mode='HTML', disable_web_page_preview=True)
-    logging.info("Supported devices list sent.")
+    await send_message(update, message)
 
 async def rom(update: Update, context: CallbackContext) -> None:
     device_code = context.args[0] if context.args else None
-
-    try:
-        response = requests.get('https://raw.githubusercontent.com/craftrom-os/official_devices/master/devices.json')
-        response.raise_for_status()
-        devices_data = response.json()
-    except requests.RequestException as e:
-        await update.message.reply_text(f"<b>Error:</b> {e}", parse_mode='HTML')
-        logging.error(f"Error fetching devices data: {e}")
+    devices_data = await fetch_devices_data()
+    if devices_data is None:
+        await send_error_message(update, "Unable to fetch devices data.")
         return
 
     if not device_code:
         if not devices_data:
-            await update.message.reply_text("Device code list is empty or not found.")
+            await send_message(update, "Device code list is empty or not found.")
         else:
             device_codes = [device['codename'] for device in devices_data]
             device_codes_str = ", ".join(device_codes)
-            await update.message.reply_text(
+            await send_message(
+                update,
                 '<b>Please specify the device code.</b>\n'
                 'Example: <code>/rom onclite</code>\n'
                 'You can also use <code>/rom</code> to get a list of supported devices.\n\n'
                 '<b>List of supported device codes:</b>\n' + device_codes_str,
-                parse_mode='HTML'
             )
         return
 
-    device = next((d for d in devices_data if device_code in d.get('variant_name', [])), None)
+    device = get_device_by_code(devices_data, device_code)
     if not device:
-        await update.message.reply_text(f"<b>Device code {device_code} not found.</b>", parse_mode='HTML')
+        await send_message(update, f"<b>Device code {device_code} not found.</b>")
         logging.warning(f"Device code {device_code} not found.")
         return
 
@@ -226,9 +205,8 @@ async def rom(update: Update, context: CallbackContext) -> None:
         f'<a href="http://t.me/craftrom">CHAT CRAFTROM</a> | '
         f'<a href="http://t.me/craftrom_news">NEWS</a>'
     )
-    await update.message.reply_text(message, parse_mode='HTML', disable_web_page_preview=True)
+    await send_message(update, message)
     logging.info(f"Device info sent for device code {device_code}.")
-
 async def system_info(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
